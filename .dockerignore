@@ -1,0 +1,23 @@
+.git
+.gitignore
+README.md
+render.yaml
+*.md
+
+# Build artifacts
+FinanceTracker/target/
+
+# IDE files
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+.classpath
+.project
+.settings/
+.factorypath
+
+# OS files
+Thumbs.db
+.DS_Store

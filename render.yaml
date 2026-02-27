@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: financetracker-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: financetracker-db
+          property: connectionURI
+      - key: DB_DRIVER
+        value: org.postgresql.Driver
+      - key: DB_USERNAME
+        fromDatabase:
+          name: financetracker-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: financetracker-db
+          property: password
+      - key: HIBERNATE_DIALECT
+        value: org.hibernate.dialect.PostgreSQLDialect
+
+databases:
+  - name: financetracker-db
+    plan: free
+    databaseName: financetracker
+    region: oregon
