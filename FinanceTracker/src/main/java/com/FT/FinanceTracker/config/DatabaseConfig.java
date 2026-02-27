@@ -45,15 +45,24 @@ public class DatabaseConfig {
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(dbUrl);
             
+            String user = dbUsername;
+            String pass = dbPassword;
+
             if (dbUri.getUserInfo() != null) {
-                String[] userInfo = dbUri.getUserInfo().split(":");
-                config.setUsername(userInfo[0]);
-                if (userInfo.length > 1) {
-                    config.setPassword(userInfo[1]);
+                String[] userInfo = dbUri.getUserInfo().split(":", 2);
+                if (user == null || user.trim().isEmpty()) {
+                    user = userInfo[0];
                 }
-            } else {
-                if (dbUsername != null && !dbUsername.isEmpty()) config.setUsername(dbUsername);
-                if (dbPassword != null && !dbPassword.isEmpty()) config.setPassword(dbPassword);
+                if ((pass == null || pass.trim().isEmpty()) && userInfo.length > 1) {
+                    pass = userInfo[1];
+                }
+            }
+
+            if (user != null && !user.trim().isEmpty()) {
+                config.setUsername(user);
+            }
+            if (pass != null && !pass.trim().isEmpty()) {
+                config.setPassword(pass);
             }
             
             config.setDriverClassName("org.postgresql.Driver");
