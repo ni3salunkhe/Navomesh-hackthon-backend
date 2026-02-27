@@ -34,11 +34,6 @@ public class DocumentController {
             return ResponseEntity.badRequest().build();
         }
 
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.equals("application/pdf")) {
-            return ResponseEntity.badRequest().build();
-        }
-
         String userEmail = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
         DashboardResponseDto response = documentProcessingService.processDocument(file, userEmail);
         return ResponseEntity.ok(response);
