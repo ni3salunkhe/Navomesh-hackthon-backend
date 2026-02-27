@@ -25,7 +25,8 @@ services:
           property: password
       - key: HIBERNATE_DIALECT
         value: org.hibernate.dialect.PostgreSQLDialect
-
+      - key: PORT
+        value: "8080"
 databases:
   - name: financetracker-db
     plan: free
