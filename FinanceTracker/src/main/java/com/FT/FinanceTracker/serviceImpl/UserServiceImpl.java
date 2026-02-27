@@ -25,6 +25,7 @@ public class UserServiceImpl {
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword()); // TODO: hash with BCrypt in production
         user.setRole(User.Role.USER);
+        user.setStatus(User.Status.ACTIVE);
 
         User saved = userRepository.save(user);
 

@@ -14,11 +14,15 @@ public class User extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Transaction> transactions = new ArrayList<>();
@@ -29,6 +33,12 @@ public class User extends BaseEntity {
     public enum Role {
         USER,
         ADMIN
+    }
+
+    public enum Status {
+        ACTIVE,
+        INACTIVE,
+        SUSPENDED
     }
 
     public User() {
@@ -73,6 +83,14 @@ public class User extends BaseEntity {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public List<Transaction> getTransactions() {
