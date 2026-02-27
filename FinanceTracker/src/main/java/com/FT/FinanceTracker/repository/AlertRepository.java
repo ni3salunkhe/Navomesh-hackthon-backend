@@ -18,4 +18,6 @@ public interface AlertRepository extends JpaRepository<Alert, UUID> {
     List<Alert> findByUserAndStatus(User user, Alert.AlertStatus status);
 
     long countByUserAndStatus(User user, Alert.AlertStatus status);
+
+    java.util.Optional<Alert> findByUser_IdAndCategory(UUID userId, String category);
 }

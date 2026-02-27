@@ -23,6 +23,10 @@ public class Alert extends BaseEntity {
 
     private String message;
 
+    private String type;
+
+    private String severity;
+
     @Enumerated(EnumType.STRING)
     private AlertStatus status;
 
@@ -34,13 +38,15 @@ public class Alert extends BaseEntity {
     public Alert() {
     }
 
-    public Alert(UUID id, User user, String category, BigDecimal currentSpent, BigDecimal limitAmount, String message, AlertStatus status) {
+    public Alert(UUID id, User user, String category, BigDecimal currentSpent, BigDecimal limitAmount, String message, String type, String severity, AlertStatus status) {
         this.id = id;
         this.user = user;
         this.category = category;
         this.currentSpent = currentSpent;
         this.limitAmount = limitAmount;
         this.message = message;
+        this.type = type;
+        this.severity = severity;
         this.status = status;
     }
 
@@ -98,5 +104,21 @@ public class Alert extends BaseEntity {
 
     public void setStatus(AlertStatus status) {
         this.status = status;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
     }
 }

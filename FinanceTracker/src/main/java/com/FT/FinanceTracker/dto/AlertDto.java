@@ -8,15 +8,21 @@ public class AlertDto {
     private BigDecimal currentSpent;
     private BigDecimal limitAmount;
     private String status;
+    private String message;
+    private String type;
+    private String severity;
 
     public AlertDto() {
     }
 
-    public AlertDto(String category, BigDecimal currentSpent, BigDecimal limitAmount, String status) {
+    public AlertDto(String category, BigDecimal currentSpent, BigDecimal limitAmount, String status, String message, String type, String severity) {
         this.category = category;
         this.currentSpent = currentSpent;
         this.limitAmount = limitAmount;
         this.status = status;
+        this.message = message;
+        this.type = type;
+        this.severity = severity;
     }
 
     public String getCategory() {
@@ -49,5 +55,29 @@ public class AlertDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
     }
 }

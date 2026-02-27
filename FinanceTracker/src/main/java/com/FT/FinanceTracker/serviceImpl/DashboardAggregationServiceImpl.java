@@ -91,7 +91,10 @@ public class DashboardAggregationServiceImpl implements DashboardAggregationServ
                         a.getCategory(),
                         a.getCurrentSpent(),
                         a.getLimitAmount(),
-                        a.getStatus().name()))
+                        a.getStatus().name(),
+                        a.getMessage(),
+                        a.getType(),
+                        a.getSeverity()))
                 .collect(Collectors.toList());
         dashboard.setAlerts(alertDtos);
 
