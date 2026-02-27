@@ -17,9 +17,8 @@ public class BudgetController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createBudget(@RequestBody BudgetRequestDto dto,
-                                          @RequestParam String email) {
-
+    public ResponseEntity<?> createBudget(@RequestBody BudgetRequestDto dto) {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(budgetService.createBudget(dto, email));
     }
 }

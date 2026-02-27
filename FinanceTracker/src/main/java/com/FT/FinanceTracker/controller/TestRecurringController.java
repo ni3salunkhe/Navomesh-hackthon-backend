@@ -39,7 +39,8 @@ public class TestRecurringController {
     }
 
     @GetMapping
-    public ResponseEntity<?> testRecurring(@RequestParam("email") String email) {
+    public ResponseEntity<?> testRecurring() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found");

@@ -13,9 +13,12 @@ import com.FT.FinanceTracker.service.UserService;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, 
+                           org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponseDto register(UserRegistrationDto dto) {
@@ -25,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
         User user = new User();
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); // TODO: hash with BCrypt in production
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(User.Role.USER);
         user.setStatus(User.Status.ACTIVE);
 

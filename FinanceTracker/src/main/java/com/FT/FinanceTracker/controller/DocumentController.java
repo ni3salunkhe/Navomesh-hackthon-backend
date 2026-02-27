@@ -28,8 +28,7 @@ public class DocumentController {
 
     @PostMapping("/upload")
     public ResponseEntity<DashboardResponseDto> uploadDocument(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("email") String userEmail) {
+            @RequestParam("file") MultipartFile file) {
 
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -40,12 +39,14 @@ public class DocumentController {
             return ResponseEntity.badRequest().build();
         }
 
+        String userEmail = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
         DashboardResponseDto response = documentProcessingService.processDocument(file, userEmail);
         return ResponseEntity.ok(response);
     }
 
     @org.springframework.web.bind.annotation.GetMapping("/dashboard")
-    public ResponseEntity<DashboardResponseDto> getDashboard(@RequestParam("email") String email) {
+    public ResponseEntity<DashboardResponseDto> getDashboard() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
         com.FT.FinanceTracker.entity.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(dashboardAggregationService.buildDashboard(user));

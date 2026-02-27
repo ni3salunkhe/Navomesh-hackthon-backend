@@ -34,8 +34,9 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(@RequestParam("email") String email) {
+    public ResponseEntity<?> getProfile() {
         try {
+            String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
             UserResponseDto response = userService.getByEmail(email);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
