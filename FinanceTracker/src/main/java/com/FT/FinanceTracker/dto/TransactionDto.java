@@ -10,6 +10,7 @@ public class TransactionDto {
     private Double amount;
     private TransactionType type;
     private Double balance;
+    private Boolean recurringFlag;
 
     public TransactionDto() {
     }
@@ -60,5 +61,13 @@ public class TransactionDto {
 
     public void setBalance(Double balance) {
         this.balance = balance;
+    }
+
+    public Boolean getRecurringFlag() {
+        return recurringFlag;
+    }
+
+    public void setRecurringFlag(Boolean recurringFlag) {
+        this.recurringFlag = recurringFlag;
     }
 }

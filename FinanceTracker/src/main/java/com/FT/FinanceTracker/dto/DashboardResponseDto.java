@@ -11,6 +11,7 @@ public class DashboardResponseDto {
     private long transactionCount;
     private Map<String, Double> categoryBreakdown;
     private List<TransactionDto> recentTransactions;
+    private List<RecurringDto> recurringPayments;
 
     public DashboardResponseDto() {
     }
@@ -61,5 +62,13 @@ public class DashboardResponseDto {
 
     public void setRecentTransactions(List<TransactionDto> recentTransactions) {
         this.recentTransactions = recentTransactions;
+    }
+
+    public List<RecurringDto> getRecurringPayments() {
+        return recurringPayments;
+    }
+
+    public void setRecurringPayments(List<RecurringDto> recurringPayments) {
+        this.recurringPayments = recurringPayments;
     }
 }

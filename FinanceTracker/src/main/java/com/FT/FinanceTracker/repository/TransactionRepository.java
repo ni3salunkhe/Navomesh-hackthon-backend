@@ -18,6 +18,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     List<Transaction> findByUserOrderByTransactionDateDesc(User user);
 
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT")
+    List<Transaction> findDebitByUser(@Param("userId") UUID userId);
+
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.systemCategory = :category " +
            "AND t.transactionDate BETWEEN :startDate AND :endDate " +
@@ -32,6 +35,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query("SELECT DISTINCT t.normalizedMerchant FROM Transaction t WHERE t.user = :user AND t.normalizedMerchant IS NOT NULL")
     List<String> findDistinctMerchantsByUser(@Param("user") User user);
+
+    @Query("SELECT t FROM Transaction t WHERE t.user = :user AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT AND t.normalizedMerchant != 'UNKNOWN' ORDER BY t.normalizedMerchant, t.transactionDate ASC")
+    List<Transaction> findRecurringCandidatesByUser(@Param("user") User user);
 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT")

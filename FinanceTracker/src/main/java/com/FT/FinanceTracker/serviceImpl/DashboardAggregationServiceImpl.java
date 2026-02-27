@@ -8,9 +8,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.FT.FinanceTracker.dto.DashboardResponseDto;
+import com.FT.FinanceTracker.dto.RecurringDto;
 import com.FT.FinanceTracker.dto.TransactionDto;
+import com.FT.FinanceTracker.entity.RecurringPayment;
 import com.FT.FinanceTracker.entity.Transaction;
 import com.FT.FinanceTracker.entity.User;
+import com.FT.FinanceTracker.repository.RecurringPaymentRepository;
 import com.FT.FinanceTracker.repository.TransactionRepository;
 import com.FT.FinanceTracker.service.DashboardAggregationService;
 import com.FT.FinanceTracker.utils.TransactionMapper;
@@ -20,11 +23,14 @@ public class DashboardAggregationServiceImpl implements DashboardAggregationServ
 
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
+    private final RecurringPaymentRepository recurringPaymentRepository;
 
     public DashboardAggregationServiceImpl(TransactionRepository transactionRepository,
-                                            TransactionMapper transactionMapper) {
+                                           TransactionMapper transactionMapper,
+                                           RecurringPaymentRepository recurringPaymentRepository) {
         this.transactionRepository = transactionRepository;
         this.transactionMapper = transactionMapper;
+        this.recurringPaymentRepository = recurringPaymentRepository;
     }
 
     @Override
@@ -55,6 +61,17 @@ public class DashboardAggregationServiceImpl implements DashboardAggregationServ
                 .map(transactionMapper::toDto)
                 .collect(Collectors.toList());
         dashboard.setRecentTransactions(recentDtos);
+
+        // Recurring Payments
+        List<RecurringPayment> recurring = recurringPaymentRepository.findByUser(user);
+        List<RecurringDto> recurringDtos = recurring.stream()
+                .map(r -> new RecurringDto(
+                        r.getMerchant(),
+                        r.getAverageAmount(),
+                        r.getIntervalDays(),
+                        r.getConfidenceScore()))
+                .collect(Collectors.toList());
+        dashboard.setRecurringPayments(recurringDtos);
 
         return dashboard;
     }

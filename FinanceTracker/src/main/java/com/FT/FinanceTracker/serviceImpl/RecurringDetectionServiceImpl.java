@@ -1,7 +1,10 @@
 package com.FT.FinanceTracker.serviceImpl;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -11,6 +14,8 @@ import com.FT.FinanceTracker.entity.User;
 import com.FT.FinanceTracker.repository.RecurringPaymentRepository;
 import com.FT.FinanceTracker.repository.TransactionRepository;
 import com.FT.FinanceTracker.service.RecurringDetectionService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class RecurringDetectionServiceImpl implements RecurringDetectionService {
@@ -24,47 +29,89 @@ public class RecurringDetectionServiceImpl implements RecurringDetectionService 
         this.recurringPaymentRepository = recurringPaymentRepository;
     }
 
-    @Override
+    @Transactional
     public void detectRecurring(User user) {
-        // Clear existing recurring payments for this user
-        recurringPaymentRepository.deleteByUser(user);
 
-        // Get distinct merchants for this user
-        List<String> merchants = transactionRepository.findDistinctMerchantsByUser(user);
+        List<Transaction> transactions =
+            transactionRepository.findDebitByUser(user.getId());
 
-        for (String merchant : merchants) {
-            List<Transaction> txns = transactionRepository
-                    .findByUserAndNormalizedMerchantOrderByTransactionDateAsc(user, merchant);
+        Map<String, List<Transaction>> grouped =
+            transactions.stream()
+                .filter(t -> t.getNormalizedMerchant() != null)
+                .collect(Collectors.groupingBy(Transaction::getNormalizedMerchant));
 
-            if (txns.size() >= 2) {
-                // Calculate average interval between transactions
-                long totalDays = 0;
-                for (int i = 1; i < txns.size(); i++) {
-                    totalDays += ChronoUnit.DAYS.between(
-                            txns.get(i - 1).getTransactionDate(),
-                            txns.get(i).getTransactionDate());
-                }
-                int avgInterval = (int) (totalDays / (txns.size() - 1));
+        for (String merchant : grouped.keySet()) {
 
-                // If transactions occur roughly monthly (25-35 days) or weekly (5-9 days)
-                if ((avgInterval >= 25 && avgInterval <= 35) || (avgInterval >= 5 && avgInterval <= 9)) {
-                    double avgAmount = txns.stream()
-                            .mapToDouble(Transaction::getAmount)
-                            .average()
-                            .orElse(0.0);
+            List<Transaction> list = grouped.get(merchant);
 
-                    double confidence = Math.min(txns.size() * 0.2, 1.0);
+            if (list.size() < 3) continue;
 
-                    RecurringPayment rp = new RecurringPayment();
-                    rp.setUser(user);
-                    rp.setMerchant(merchant);
-                    rp.setAverageAmount(avgAmount);
-                    rp.setIntervalDays(avgInterval);
-                    rp.setConfidenceScore(confidence);
+            list.sort(Comparator.comparing(Transaction::getTransactionDate));
 
-                    recurringPaymentRepository.save(rp);
-                }
+            if (isMonthlyRecurring(list)) {
+
+                saveRecurring(user, merchant, list);
             }
         }
+    }
+    private boolean isMonthlyRecurring(List<Transaction> list) {
+
+        for (int i = 1; i < list.size(); i++) {
+
+            long days =
+                ChronoUnit.DAYS.between(
+                    list.get(i - 1).getTransactionDate(),
+                    list.get(i).getTransactionDate()
+                );
+
+            if (days < 25 || days > 35)
+                return false;
+
+            if (!isAmountSimilar(
+                    list.get(i - 1).getAmount(),
+                    list.get(i).getAmount()))
+                return false;
+        }
+
+        return true;
+    }
+    private boolean isAmountSimilar(Double a, Double b) {
+
+        double tolerance = a * 0.05;
+
+        return Math.abs(a - b) <= tolerance;
+    }
+
+    private void saveRecurring(User user, String merchant, List<Transaction> list) {
+        if (recurringPaymentRepository.existsByUserAndMerchant(user, merchant)) {
+            return;
+        }
+
+        double sumAmount = list.stream()
+                .mapToDouble(t -> t.getAmount() == null ? 0.0 : t.getAmount())
+                .sum();
+        double avgAmount = sumAmount / list.size();
+
+        long totalDays = ChronoUnit.DAYS.between(
+                list.get(0).getTransactionDate(),
+                list.get(list.size() - 1).getTransactionDate()
+        );
+        int avgInterval = (int) (totalDays / (list.size() - 1));
+
+        double confidence = Math.min(0.95, 0.7 + (list.size() * 0.05));
+
+        RecurringPayment rp = new RecurringPayment();
+        rp.setUser(user);
+        rp.setMerchant(merchant);
+        rp.setAverageAmount(avgAmount);
+        rp.setIntervalDays(avgInterval);
+        rp.setConfidenceScore(confidence);
+        
+        recurringPaymentRepository.save(rp);
+
+        for (Transaction t : list) {
+            t.setRecurringFlag(true);
+        }
+        transactionRepository.saveAll(list);
     }
 }

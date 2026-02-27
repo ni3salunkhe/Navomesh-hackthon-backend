@@ -33,6 +33,7 @@ public class TransactionMapper {
         dto.setAmount(transaction.getAmount());
         dto.setType(transaction.getType());
         dto.setBalance(transaction.getBalance());
+        dto.setRecurringFlag(transaction.getRecurringFlag());
         return dto;
     }
 }

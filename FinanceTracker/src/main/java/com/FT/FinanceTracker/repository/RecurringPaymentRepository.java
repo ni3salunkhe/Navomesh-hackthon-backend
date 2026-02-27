@@ -13,5 +13,7 @@ public interface RecurringPaymentRepository extends JpaRepository<RecurringPayme
 
     List<RecurringPayment> findByUser(User user);
 
+    boolean existsByUserAndMerchant(User user, String merchant);
+
     void deleteByUser(User user);
 }
