@@ -45,7 +45,7 @@ public class SecurityConfig {
         String allowedOriginsEnv = System.getenv("ALLOWED_ORIGINS");
         List<String> allowedOrigins = (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty())
                 ? List.of(allowedOriginsEnv.split(","))
-                : List.of("http://localhost:5173", "http://localhost:3000");
+                : List.of("https://navomesh-hackthon-frontend.onrender.com", "http://localhost:5173", "http://localhost:3000");
 
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowedOrigins);
