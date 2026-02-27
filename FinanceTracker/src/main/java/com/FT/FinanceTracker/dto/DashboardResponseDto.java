@@ -1,0 +1,65 @@
+package com.FT.FinanceTracker.dto;
+
+import java.util.List;
+import java.util.Map;
+
+public class DashboardResponseDto {
+
+    private double totalIncome;
+    private double totalExpense;
+    private double netBalance;
+    private long transactionCount;
+    private Map<String, Double> categoryBreakdown;
+    private List<TransactionDto> recentTransactions;
+
+    public DashboardResponseDto() {
+    }
+
+    public double getTotalIncome() {
+        return totalIncome;
+    }
+
+    public void setTotalIncome(double totalIncome) {
+        this.totalIncome = totalIncome;
+    }
+
+    public double getTotalExpense() {
+        return totalExpense;
+    }
+
+    public void setTotalExpense(double totalExpense) {
+        this.totalExpense = totalExpense;
+    }
+
+    public double getNetBalance() {
+        return netBalance;
+    }
+
+    public void setNetBalance(double netBalance) {
+        this.netBalance = netBalance;
+    }
+
+    public long getTransactionCount() {
+        return transactionCount;
+    }
+
+    public void setTransactionCount(long transactionCount) {
+        this.transactionCount = transactionCount;
+    }
+
+    public Map<String, Double> getCategoryBreakdown() {
+        return categoryBreakdown;
+    }
+
+    public void setCategoryBreakdown(Map<String, Double> categoryBreakdown) {
+        this.categoryBreakdown = categoryBreakdown;
+    }
+
+    public List<TransactionDto> getRecentTransactions() {
+        return recentTransactions;
+    }
+
+    public void setRecentTransactions(List<TransactionDto> recentTransactions) {
+        this.recentTransactions = recentTransactions;
+    }
+}

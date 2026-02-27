@@ -1,7 +1,5 @@
 package com.FT.FinanceTracker.entity;
 
-package com.yourapp.entity;
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -25,4 +23,19 @@ public abstract class BaseEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
