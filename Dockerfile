@@ -3,11 +3,8 @@ FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Copy the Maven project files
+# Copy the Maven project files (pom.xml first for dependency caching)
 COPY FinanceTracker/pom.xml ./pom.xml
-COPY FinanceTracker/.mvn ./.mvn
-COPY FinanceTracker/mvnw ./mvnw
-COPY FinanceTracker/mvnw.cmd ./mvnw.cmd
 
 # Download dependencies (cached layer)
 RUN mvn dependency:go-offline -B
