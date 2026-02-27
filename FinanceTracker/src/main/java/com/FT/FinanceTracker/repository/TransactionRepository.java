@@ -22,13 +22,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT")
     List<Transaction> findDebitByUser(@Param("userId") UUID userId);
 
-    boolean existsByUserAndTransactionDateAndAmountAndNormalizedMerchant(
-            User user,
-            java.time.LocalDate transactionDate,
-            java.math.BigDecimal amount,
-            String normalizedMerchant
-    );
-
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.systemCategory = :category " +
            "AND t.transactionDate BETWEEN :startDate AND :endDate " +
@@ -54,6 +47,19 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.CREDIT")
     BigDecimal sumTotalIncomeByUser(@Param("user") User user);
+
+    @Query("""
+    SELECT COALESCE(SUM(t.amount), 0)
+    FROM Transaction t
+    WHERE t.user.id = :userId
+    AND t.systemCategory = :category
+    AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT
+    AND t.transactionDate >= :startDate
+    """)
+    BigDecimal sumByUserCategoryAndCurrentPeriod(
+            @Param("userId") UUID userId, 
+            @Param("category") String category,
+            @Param("startDate") LocalDate startDate);
 
     long countByUser(User user);
 }

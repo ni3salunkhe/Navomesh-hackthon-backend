@@ -17,10 +17,8 @@ public class Alert extends BaseEntity {
 
     private String category;
 
-    @Column(precision = 19, scale = 2)
     private BigDecimal currentSpent;
 
-    @Column(precision = 19, scale = 2)
     private BigDecimal limitAmount;
 
     private String message;

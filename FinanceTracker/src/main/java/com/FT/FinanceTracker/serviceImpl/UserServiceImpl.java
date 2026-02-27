@@ -7,8 +7,10 @@ import com.FT.FinanceTracker.dto.UserResponseDto;
 import com.FT.FinanceTracker.entity.User;
 import com.FT.FinanceTracker.repository.UserRepository;
 
+import com.FT.FinanceTracker.service.UserService;
+
 @Service
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 

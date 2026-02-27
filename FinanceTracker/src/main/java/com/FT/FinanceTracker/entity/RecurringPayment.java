@@ -5,12 +5,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(
-    name = "recurring_payments",
-    uniqueConstraints = @UniqueConstraint(
-        columnNames = {"user_id", "merchant"}
-    )
-)
+@Table(name = "recurring_payments")
 public class RecurringPayment extends BaseEntity {
 
     @Id

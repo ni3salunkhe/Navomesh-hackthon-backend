@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.FT.FinanceTracker.entity.Alert;
+import com.FT.FinanceTracker.entity.Alert.AlertStatus;
 import com.FT.FinanceTracker.entity.Budget;
 import com.FT.FinanceTracker.entity.User;
 import com.FT.FinanceTracker.repository.AlertRepository;
@@ -30,30 +31,39 @@ public class BudgetEvaluationServiceImpl implements BudgetEvaluationService {
 
     @Override
     public void evaluate(User user) {
-        List<Budget> budgets = budgetRepository.findByUser(user);
+
+        List<Budget> budgets = budgetRepository.findByUser_Id(user.getId());
+
+        java.time.LocalDate startDate = java.time.LocalDate.now().minusDays(30);
 
         for (Budget budget : budgets) {
-            BigDecimal spent = transactionRepository.sumByUserAndCategoryAndPeriod(
-                user,
-                budget.getCategory(),
-                budget.getPeriodStart(),
-                budget.getPeriodEnd()
-            );
 
-            if (spent == null) {
-                spent = BigDecimal.ZERO;
-            }
+            BigDecimal spent = transactionRepository
+                    .sumByUserCategoryAndCurrentPeriod(
+                            user.getId(),
+                            budget.getCategory(),
+                            startDate);
 
-            if (spent.compareTo(budget.getLimitAmount()) >= 0) {
-                Alert alert = new Alert();
-                alert.setUser(user);
-                alert.setCategory(budget.getCategory());
-                alert.setCurrentSpent(spent);
-                alert.setLimitAmount(budget.getLimitAmount());
-                alert.setMessage(String.format("Budget exceeded for %s: spent %s of %s limit",
-                        budget.getCategory(), spent.toString(), budget.getLimitAmount().toString()));
-                alert.setStatus(Alert.AlertStatus.ACTIVE);
-                alertRepository.save(alert);
+            if (spent != null && spent.compareTo(budget.getLimitAmount()) >= 0) {
+
+                // Check if an alert already exists for this category to avoid duplicates
+                boolean exists = alertRepository
+                        .findByUser_Id(user.getId())
+                        .stream()
+                        .anyMatch(a -> a.getCategory().equals(budget.getCategory()) && a.getStatus() == AlertStatus.ACTIVE);
+
+                if (!exists) {
+                    Alert alert = new Alert();
+                    alert.setUser(user);
+                    alert.setCategory(budget.getCategory());
+                    alert.setCurrentSpent(spent);
+                    alert.setLimitAmount(budget.getLimitAmount());
+                    alert.setStatus(AlertStatus.ACTIVE);
+                    alert.setMessage("Budget exceeded for " + budget.getCategory() + 
+                        ": spent " + spent + " of " + budget.getLimitAmount() + " limit");
+
+                    alertRepository.save(alert);
+                }
             }
         }
     }

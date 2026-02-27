@@ -1,51 +1,44 @@
 package com.FT.FinanceTracker.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 public class DashboardResponseDto {
 
-    private double totalIncome;
-    private double totalExpense;
-    private double netBalance;
+    private BigDecimal totalIncome;
+    private BigDecimal totalExpense;
+    private BigDecimal netBalance;
     private long transactionCount;
-    private Map<String, Double> categoryBreakdown;
+    private Map<String, BigDecimal> categoryBreakdown;
     private List<TransactionDto> recentTransactions;
     private List<RecurringDto> recurringPayments;
+    private List<AlertDto> alerts;
 
     public DashboardResponseDto() {
     }
 
-    public DashboardResponseDto(double totalIncome, double totalExpense, double netBalance, long transactionCount, Map<String, Double> categoryBreakdown, List<TransactionDto> recentTransactions) {
-        this.totalIncome = totalIncome;
-        this.totalExpense = totalExpense;
-        this.netBalance = netBalance;
-        this.transactionCount = transactionCount;
-        this.categoryBreakdown = categoryBreakdown;
-        this.recentTransactions = recentTransactions;
-    }
-
-    public double getTotalIncome() {
+    public BigDecimal getTotalIncome() {
         return totalIncome;
     }
 
-    public void setTotalIncome(double totalIncome) {
+    public void setTotalIncome(BigDecimal totalIncome) {
         this.totalIncome = totalIncome;
     }
 
-    public double getTotalExpense() {
+    public BigDecimal getTotalExpense() {
         return totalExpense;
     }
 
-    public void setTotalExpense(double totalExpense) {
+    public void setTotalExpense(BigDecimal totalExpense) {
         this.totalExpense = totalExpense;
     }
 
-    public double getNetBalance() {
+    public BigDecimal getNetBalance() {
         return netBalance;
     }
 
-    public void setNetBalance(double netBalance) {
+    public void setNetBalance(BigDecimal netBalance) {
         this.netBalance = netBalance;
     }
 
@@ -57,11 +50,11 @@ public class DashboardResponseDto {
         this.transactionCount = transactionCount;
     }
 
-    public Map<String, Double> getCategoryBreakdown() {
+    public Map<String, BigDecimal> getCategoryBreakdown() {
         return categoryBreakdown;
     }
 
-    public void setCategoryBreakdown(Map<String, Double> categoryBreakdown) {
+    public void setCategoryBreakdown(Map<String, BigDecimal> categoryBreakdown) {
         this.categoryBreakdown = categoryBreakdown;
     }
 
@@ -79,5 +72,13 @@ public class DashboardResponseDto {
 
     public void setRecurringPayments(List<RecurringDto> recurringPayments) {
         this.recurringPayments = recurringPayments;
+    }
+
+    public List<AlertDto> getAlerts() {
+        return alerts;
+    }
+
+    public void setAlerts(List<AlertDto> alerts) {
+        this.alerts = alerts;
     }
 }

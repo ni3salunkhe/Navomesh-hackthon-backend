@@ -6,7 +6,10 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "budgets")
+@Table(name = "budgets",
+       uniqueConstraints = @UniqueConstraint(
+           columnNames = {"user_id", "category", "period"}
+       ))
 public class Budget extends BaseEntity {
 
     @Id
@@ -14,6 +17,7 @@ public class Budget extends BaseEntity {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String category;

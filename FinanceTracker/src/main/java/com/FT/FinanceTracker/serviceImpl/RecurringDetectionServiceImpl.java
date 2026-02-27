@@ -81,8 +81,11 @@ public class RecurringDetectionServiceImpl implements RecurringDetectionService 
 
     private boolean isAmountSimilar(BigDecimal a, BigDecimal b) {
         if (a == null || b == null) return false;
+        
+        BigDecimal diff = a.subtract(b).abs();
         BigDecimal tolerance = a.multiply(new BigDecimal("0.05"));
-        return a.subtract(b).abs().compareTo(tolerance) <= 0;
+
+        return diff.compareTo(tolerance) <= 0;
     }
 
     private void saveRecurring(User user, String merchant, List<Transaction> list) {
@@ -90,16 +93,11 @@ public class RecurringDetectionServiceImpl implements RecurringDetectionService 
             return;
         }
 
-        BigDecimal sumAmount = BigDecimal.ZERO;
-        for (Transaction t : list) {
-            sumAmount = sumAmount.add(t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO);
-        }
+        BigDecimal sumAmount = list.stream()
+                .map(t -> t.getAmount() == null ? BigDecimal.ZERO : t.getAmount())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         
-        BigDecimal avgAmount = sumAmount.divide(
-                BigDecimal.valueOf(list.size()),
-                2,
-                RoundingMode.HALF_UP
-        );
+        BigDecimal avgAmount = sumAmount.divide(new BigDecimal(list.size()), 2, RoundingMode.HALF_UP);
 
         long totalDays = ChronoUnit.DAYS.between(
                 list.get(0).getTransactionDate(),

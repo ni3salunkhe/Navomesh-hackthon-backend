@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.FT.FinanceTracker.dto.UserRegistrationDto;
 import com.FT.FinanceTracker.dto.UserResponseDto;
-import com.FT.FinanceTracker.serviceImpl.UserServiceImpl;
+import com.FT.FinanceTracker.service.UserService;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public UserController(UserServiceImpl userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 

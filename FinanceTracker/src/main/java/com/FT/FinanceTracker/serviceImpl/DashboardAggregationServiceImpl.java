@@ -8,13 +8,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.FT.FinanceTracker.dto.AlertDto;
 import com.FT.FinanceTracker.dto.DashboardResponseDto;
 import com.FT.FinanceTracker.dto.RecurringDto;
 import com.FT.FinanceTracker.dto.TransactionDto;
+import com.FT.FinanceTracker.entity.Alert;
 import com.FT.FinanceTracker.entity.RecurringPayment;
 import com.FT.FinanceTracker.entity.Transaction;
-import com.FT.FinanceTracker.entity.Transaction.TransactionType;
 import com.FT.FinanceTracker.entity.User;
+import com.FT.FinanceTracker.repository.AlertRepository;
 import com.FT.FinanceTracker.repository.RecurringPaymentRepository;
 import com.FT.FinanceTracker.repository.TransactionRepository;
 import com.FT.FinanceTracker.service.DashboardAggregationService;
@@ -26,51 +28,44 @@ public class DashboardAggregationServiceImpl implements DashboardAggregationServ
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
     private final RecurringPaymentRepository recurringPaymentRepository;
+    private final AlertRepository alertRepository;
 
     public DashboardAggregationServiceImpl(TransactionRepository transactionRepository,
                                            TransactionMapper transactionMapper,
-                                           RecurringPaymentRepository recurringPaymentRepository) {
+                                           RecurringPaymentRepository recurringPaymentRepository,
+                                           AlertRepository alertRepository) {
         this.transactionRepository = transactionRepository;
         this.transactionMapper = transactionMapper;
         this.recurringPaymentRepository = recurringPaymentRepository;
+        this.alertRepository = alertRepository;
     }
 
     @Override
     public DashboardResponseDto buildDashboard(User user) {
         DashboardResponseDto dashboard = new DashboardResponseDto();
 
-        List<Transaction> allTransactions = transactionRepository.findByUser(user);
-        
-        BigDecimal totalIncome = BigDecimal.ZERO;
-        BigDecimal totalExpense = BigDecimal.ZERO;
-        Map<String, BigDecimal> categoryBreakdownMap = new HashMap<>();
+        BigDecimal totalIncome = transactionRepository.sumTotalIncomeByUser(user);
+        BigDecimal totalExpense = transactionRepository.sumTotalSpentByUser(user);
 
-        for (Transaction t : allTransactions) {
-            BigDecimal amount = t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO;
-            
-            if (t.getType() == TransactionType.CREDIT) {
-                totalIncome = totalIncome.add(amount);
-            } else {
-                totalExpense = totalExpense.add(amount);
-                String cat = t.getSystemCategory() != null ? t.getSystemCategory() : "Uncategorized";
-                categoryBreakdownMap.merge(cat, amount, BigDecimal::add);
-            }
-        }
+        if (totalIncome == null) totalIncome = BigDecimal.ZERO;
+        if (totalExpense == null) totalExpense = BigDecimal.ZERO;
 
-        dashboard.setTotalIncome(totalIncome.doubleValue());
-        dashboard.setTotalExpense(totalExpense.doubleValue());
-        dashboard.setNetBalance(totalIncome.subtract(totalExpense).doubleValue());
+        dashboard.setTotalIncome(totalIncome);
+        dashboard.setTotalExpense(totalExpense);
+        dashboard.setNetBalance(totalIncome.subtract(totalExpense));
         dashboard.setTransactionCount(transactionRepository.countByUser(user));
 
-        // Category breakdown conversion
-        Map<String, Double> finalBreakdown = categoryBreakdownMap.entrySet().stream()
-                .collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    e -> e.getValue().doubleValue()
-                ));
-        dashboard.setCategoryBreakdown(finalBreakdown);
+        // Category breakdown reflecting overrides
+        List<Transaction> transactions = transactionRepository.findByUser(user);
+        Map<String, BigDecimal> categoryBreakdown = new HashMap<>();
+        for (Transaction t : transactions) {
+            String cat = t.getUserOverrideCategory() != null ? t.getUserOverrideCategory() : 
+                         (t.getSystemCategory() != null ? t.getSystemCategory() : "Uncategorized");
+            categoryBreakdown.merge(cat, t.getAmount(), BigDecimal::add);
+        }
+        dashboard.setCategoryBreakdown(categoryBreakdown);
 
-        // Recent transactions (last 10)
+        // Recent transactions reflecting overrides
         List<Transaction> recent = transactionRepository.findByUserOrderByTransactionDateDesc(user);
         List<TransactionDto> recentDtos = recent.stream()
                 .limit(10)
@@ -88,6 +83,17 @@ public class DashboardAggregationServiceImpl implements DashboardAggregationServ
                         r.getConfidenceScore()))
                 .collect(Collectors.toList());
         dashboard.setRecurringPayments(recurringDtos);
+
+        // Alerts
+        List<Alert> alerts = alertRepository.findByUser_Id(user.getId());
+        List<AlertDto> alertDtos = alerts.stream()
+                .map(a -> new AlertDto(
+                        a.getCategory(),
+                        a.getCurrentSpent(),
+                        a.getLimitAmount(),
+                        a.getStatus().name()))
+                .collect(Collectors.toList());
+        dashboard.setAlerts(alertDtos);
 
         return dashboard;
     }

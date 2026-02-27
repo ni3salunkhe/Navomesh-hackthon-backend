@@ -11,13 +11,9 @@ public class TransactionDto {
     private BigDecimal amount;
     private TransactionType type;
     private BigDecimal balance;
-    
-    // Enriched fields
+    private Boolean recurringFlag;
     private String merchant;
     private String category;
-    private Double confidence;
-    private Boolean needsReview;
-    private Boolean recurringFlag;
 
     public TransactionDto() {
     }
@@ -70,6 +66,14 @@ public class TransactionDto {
         this.balance = balance;
     }
 
+    public Boolean getRecurringFlag() {
+        return recurringFlag;
+    }
+
+    public void setRecurringFlag(Boolean recurringFlag) {
+        this.recurringFlag = recurringFlag;
+    }
+
     public String getMerchant() {
         return merchant;
     }
@@ -84,29 +88,5 @@ public class TransactionDto {
 
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    public Double getConfidence() {
-        return confidence;
-    }
-
-    public void setConfidence(Double confidence) {
-        this.confidence = confidence;
-    }
-
-    public Boolean getNeedsReview() {
-        return needsReview;
-    }
-
-    public void setNeedsReview(Boolean needsReview) {
-        this.needsReview = needsReview;
-    }
-
-    public Boolean getRecurringFlag() {
-        return recurringFlag;
-    }
-
-    public void setRecurringFlag(Boolean recurringFlag) {
-        this.recurringFlag = recurringFlag;
     }
 }

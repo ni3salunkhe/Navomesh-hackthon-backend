@@ -33,17 +33,16 @@ public class TransactionMapper {
         dto.setAmount(transaction.getAmount());
         dto.setType(transaction.getType());
         dto.setBalance(transaction.getBalance());
-        
-        // Enriched fields
-        dto.setMerchant(transaction.getNormalizedMerchant());
-        String finalCategory = transaction.getUserOverrideCategory() != null
-                ? transaction.getUserOverrideCategory()
-                : transaction.getSystemCategory();
-        dto.setCategory(finalCategory);
-        dto.setConfidence(transaction.getConfidenceScore());
-        dto.setNeedsReview(transaction.getConfidenceScore() != null && transaction.getConfidenceScore() < 0.5);
         dto.setRecurringFlag(transaction.getRecurringFlag());
         
+        dto.setMerchant(transaction.getUserOverrideMerchant() != null ? 
+                        transaction.getUserOverrideMerchant() : 
+                        transaction.getNormalizedMerchant());
+        
+        dto.setCategory(transaction.getUserOverrideCategory() != null ? 
+                         transaction.getUserOverrideCategory() : 
+                         transaction.getSystemCategory());
+                         
         return dto;
     }
 }

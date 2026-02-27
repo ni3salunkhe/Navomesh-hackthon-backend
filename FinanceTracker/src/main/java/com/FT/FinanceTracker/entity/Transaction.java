@@ -6,17 +6,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(
-    name = "transactions",
-    uniqueConstraints = @UniqueConstraint(
-        columnNames = {
-            "user_id",
-            "transactionDate",
-            "amount",
-            "normalizedMerchant"
-        }
-    )
-)
+@Table(name = "transactions")
 public class Transaction extends BaseEntity {
 
     @Id
