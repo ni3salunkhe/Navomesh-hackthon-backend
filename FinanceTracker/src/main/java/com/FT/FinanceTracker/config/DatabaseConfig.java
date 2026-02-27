@@ -27,42 +27,47 @@ public class DatabaseConfig {
     @Primary
     public DataSource dataSource() throws URISyntaxException {
         if (databaseUrl == null || databaseUrl.isEmpty()) {
-            // Fallback to individual properties if DATABASE_URL is not set
             HikariConfig config = new HikariConfig();
-            config.setJdbcUrl("jdbc:postgresql://localhost:5432/finance_tracker"); // Default local fallback
-            config.setUsername(dbUsername);
-            config.setPassword(dbPassword);
+            config.setJdbcUrl("jdbc:postgresql://localhost:5432/finance_tracker");
+            if (dbUsername != null && !dbUsername.isEmpty()) config.setUsername(dbUsername);
+            if (dbPassword != null && !dbPassword.isEmpty()) config.setPassword(dbPassword);
             config.setDriverClassName("org.postgresql.Driver");
             return new HikariDataSource(config);
         }
 
-        if (databaseUrl.startsWith("postgres://")) {
+        if (databaseUrl.startsWith("postgres://") || databaseUrl.startsWith("postgresql://")) {
             URI dbUri = new URI(databaseUrl);
-            String username = dbUri.getUserInfo().split(":")[0];
-            String password = dbUri.getUserInfo().split(":")[1];
             String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ":" + dbUri.getPort() + dbUri.getPath();
+            if (dbUri.getQuery() != null) {
+                dbUrl += "?" + dbUri.getQuery();
+            }
 
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(dbUrl);
-            config.setUsername(username);
-            config.setPassword(password);
-            config.setDriverClassName("org.postgresql.Driver");
             
-            // Render specific pool optimizations
+            if (dbUri.getUserInfo() != null) {
+                String[] userInfo = dbUri.getUserInfo().split(":");
+                config.setUsername(userInfo[0]);
+                if (userInfo.length > 1) {
+                    config.setPassword(userInfo[1]);
+                }
+            } else {
+                if (dbUsername != null && !dbUsername.isEmpty()) config.setUsername(dbUsername);
+                if (dbPassword != null && !dbPassword.isEmpty()) config.setPassword(dbPassword);
+            }
+            
+            config.setDriverClassName("org.postgresql.Driver");
             config.setMaximumPoolSize(5);
             config.setMinimumIdle(2);
             config.setConnectionTimeout(30000);
-            config.setIdleTimeout(600000);
-            config.setMaxLifetime(1800000);
-            
             return new HikariDataSource(config);
         }
 
         // If it's already a JDBC URL, use it directly
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(databaseUrl);
-        config.setUsername(dbUsername);
-        config.setPassword(dbPassword);
+        if (dbUsername != null && !dbUsername.isEmpty()) config.setUsername(dbUsername);
+        if (dbPassword != null && !dbPassword.isEmpty()) config.setPassword(dbPassword);
         config.setDriverClassName("org.postgresql.Driver");
         return new HikariDataSource(config);
     }
