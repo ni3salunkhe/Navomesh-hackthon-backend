@@ -17,6 +17,9 @@ public class User extends BaseEntity {
     @Column(name = "password_hash", nullable = false)
     private String password;
 
+    @Column(name = "full_name")
+    private String fullName;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -75,6 +78,14 @@ public class User extends BaseEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public Role getRole() {

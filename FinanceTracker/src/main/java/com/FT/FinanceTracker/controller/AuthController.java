@@ -1,6 +1,7 @@
 package com.FT.FinanceTracker.controller;
 
 import com.FT.FinanceTracker.config.security.JwtUtil;
+import com.FT.FinanceTracker.dto.AuthResponseDto;
 import com.FT.FinanceTracker.dto.LoginRequestDto;
 import com.FT.FinanceTracker.entity.User;
 import com.FT.FinanceTracker.repository.UserRepository;
@@ -37,6 +38,14 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return ResponseEntity.ok(token);
+        
+        AuthResponseDto.AuthData authData = new AuthResponseDto.AuthData(
+                token, 
+                user.getFullName(), 
+                user.getEmail(), 
+                user.getRole().name()
+        );
+        
+        return ResponseEntity.ok(new AuthResponseDto(true, authData));
     }
 }

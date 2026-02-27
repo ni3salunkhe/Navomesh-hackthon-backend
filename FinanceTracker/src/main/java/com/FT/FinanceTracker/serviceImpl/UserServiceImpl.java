@@ -29,17 +29,18 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setFullName(dto.getName());
         user.setRole(User.Role.USER);
         user.setStatus(User.Status.ACTIVE);
 
         User saved = userRepository.save(user);
 
-        return new UserResponseDto(saved.getId(), saved.getEmail(), saved.getRole().name());
+        return new UserResponseDto(saved.getId(), saved.getEmail(), saved.getRole().name(), saved.getFullName());
     }
 
     public UserResponseDto getByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found: " + email));
-        return new UserResponseDto(user.getId(), user.getEmail(), user.getRole().name());
+        return new UserResponseDto(user.getId(), user.getEmail(), user.getRole().name(), user.getFullName());
     }
 }

@@ -58,25 +58,20 @@ public class RecurringDetectionServiceImpl implements RecurringDetectionService 
     }
 
     private boolean isMonthlyRecurring(List<Transaction> list) {
-
+        int consecutiveCount = 1;
         for (int i = 1; i < list.size(); i++) {
+            long days = ChronoUnit.DAYS.between(list.get(i - 1).getTransactionDate(), list.get(i).getTransactionDate());
 
-            long days =
-                ChronoUnit.DAYS.between(
-                    list.get(i - 1).getTransactionDate(),
-                    list.get(i).getTransactionDate()
-                );
-
-            if (days < 25 || days > 35)
-                return false;
-
-            if (!isAmountSimilar(
-                    list.get(i - 1).getAmount(),
-                    list.get(i).getAmount()))
-                return false;
+            if (days >= 25 && days <= 35 && isAmountSimilar(list.get(i - 1).getAmount(), list.get(i).getAmount())) {
+                consecutiveCount++;
+                if (consecutiveCount >= 3) {
+                    return true;
+                }
+            } else {
+                consecutiveCount = 1;
+            }
         }
-
-        return true;
+        return false;
     }
 
     private boolean isAmountSimilar(BigDecimal a, BigDecimal b) {

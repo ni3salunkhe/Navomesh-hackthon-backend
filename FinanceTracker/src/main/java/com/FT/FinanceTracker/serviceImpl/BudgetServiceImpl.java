@@ -2,22 +2,32 @@ package com.FT.FinanceTracker.serviceImpl;
 
 import org.springframework.stereotype.Service;
 import com.FT.FinanceTracker.dto.BudgetRequestDto;
+import com.FT.FinanceTracker.dto.BudgetResponseDto;
 import com.FT.FinanceTracker.entity.Budget;
 import com.FT.FinanceTracker.entity.User;
 import com.FT.FinanceTracker.repository.BudgetRepository;
 import com.FT.FinanceTracker.repository.UserRepository;
+import com.FT.FinanceTracker.repository.TransactionRepository;
 import com.FT.FinanceTracker.service.BudgetService;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BudgetServiceImpl implements BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
     public BudgetServiceImpl(BudgetRepository budgetRepository,
-                             UserRepository userRepository) {
+                             UserRepository userRepository,
+                             TransactionRepository transactionRepository) {
         this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -30,11 +40,51 @@ public class BudgetServiceImpl implements BudgetService {
         budget.setUser(user);
         budget.setCategory(dto.getCategory());
         budget.setLimitAmount(dto.getLimitAmount());
-        budget.setPeriod(dto.getPeriod());
+        budget.setPeriod(dto.getPeriod() != null ? dto.getPeriod() : Budget.BudgetPeriod.MONTHLY);
         budget.setStartDate(budget.getPeriodStart());
 
         budgetRepository.save(budget);
 
         return "Budget created successfully";
+    }
+
+    @Override
+    public List<BudgetResponseDto> getUserBudgets(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Budget> budgets = budgetRepository.findByUser(user);
+
+        return budgets.stream().map(budget -> {
+            BudgetResponseDto dto = new BudgetResponseDto();
+            dto.setId(budget.getId());
+            dto.setCategory(budget.getCategory());
+            dto.setLimitAmount(budget.getLimitAmount());
+            dto.setPeriod(budget.getPeriod());
+
+            BigDecimal spent = transactionRepository.sumByUserCategoryAndCurrentPeriod(
+                    user.getId(),
+                    budget.getCategory(),
+                    budget.getPeriodStart()
+            );
+
+            dto.setCurrentSpent(spent != null ? spent : BigDecimal.ZERO);
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteBudget(UUID budgetId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new RuntimeException("Budget not found"));
+
+        if (!budget.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized to delete this budget");
+        }
+
+        budgetRepository.delete(budget);
     }
 }

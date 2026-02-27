@@ -7,14 +7,24 @@ public class UserResponseDto {
     private UUID id;
     private String email;
     private String role;
+    private String name;
 
     public UserResponseDto() {
     }
 
-    public UserResponseDto(UUID id, String email, String role) {
+    public UserResponseDto(UUID id, String email, String role, String name) {
         this.id = id;
         this.email = email;
         this.role = role;
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public UUID getId() {

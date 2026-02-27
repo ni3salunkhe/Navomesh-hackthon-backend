@@ -4,13 +4,23 @@ public class UserRegistrationDto {
 
     private String email;
     private String password;
+    private String name;
 
     public UserRegistrationDto() {
     }
 
-    public UserRegistrationDto(String email, String password) {
+    public UserRegistrationDto(String email, String password, String name) {
         this.email = email;
         this.password = password;
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {

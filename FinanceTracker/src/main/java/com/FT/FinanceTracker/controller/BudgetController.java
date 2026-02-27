@@ -21,4 +21,17 @@ public class BudgetController {
         String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(budgetService.createBudget(dto, email));
     }
+
+    @GetMapping
+    public ResponseEntity<?> getUserBudgets() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(budgetService.getUserBudgets(email));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteBudget(@PathVariable java.util.UUID id) {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        budgetService.deleteBudget(id, email);
+        return ResponseEntity.ok().build();
+    }
 }

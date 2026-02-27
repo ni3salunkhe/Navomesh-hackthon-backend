@@ -32,6 +32,8 @@ public class MerchantNormalizationServiceImpl implements MerchantNormalizationSe
             }
         }
 
-        return new MerchantInfo("UNKNOWN", "Uncategorized", 0.1);
+        // Fallback: use the raw description as the normalized name so that 
+        // recurring transactions without aliases can still be clustered properly.
+        return new MerchantInfo(rawDescription, "Uncategorized", 0.1);
     }
 }
