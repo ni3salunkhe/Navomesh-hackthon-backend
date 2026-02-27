@@ -29,12 +29,5 @@ COPY --from=build /app/target/app.jar ./app.jar
 # Switch to non-root user
 USER appuser
 
-# Expose the default port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the application using the PORT environment variable provided by Render
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar app.jar"]
