@@ -31,6 +31,7 @@ public class BudgetServiceImpl implements BudgetService {
         budget.setCategory(dto.getCategory());
         budget.setLimitAmount(dto.getLimitAmount());
         budget.setPeriod(dto.getPeriod());
+        budget.setStartDate(budget.getPeriodStart());
 
         budgetRepository.save(budget);
 

@@ -3,9 +3,11 @@ package com.FT.FinanceTracker.dto;
 import com.FT.FinanceTracker.entity.Transaction.TransactionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class TransactionDto {
 
+    private UUID id;
     private LocalDate date;
     private String rawDescription;
     private BigDecimal amount;
@@ -24,6 +26,14 @@ public class TransactionDto {
         this.amount = amount;
         this.type = type;
         this.balance = balance;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public LocalDate getDate() {

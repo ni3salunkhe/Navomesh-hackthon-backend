@@ -15,9 +15,15 @@ import com.FT.FinanceTracker.service.DocumentProcessingService;
 public class DocumentController {
 
     private final DocumentProcessingService documentProcessingService;
+    private final com.FT.FinanceTracker.service.DashboardAggregationService dashboardAggregationService;
+    private final com.FT.FinanceTracker.repository.UserRepository userRepository;
 
-    public DocumentController(DocumentProcessingService documentProcessingService) {
+    public DocumentController(DocumentProcessingService documentProcessingService,
+                              com.FT.FinanceTracker.service.DashboardAggregationService dashboardAggregationService,
+                              com.FT.FinanceTracker.repository.UserRepository userRepository) {
         this.documentProcessingService = documentProcessingService;
+        this.dashboardAggregationService = dashboardAggregationService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/upload")
@@ -36,5 +42,12 @@ public class DocumentController {
 
         DashboardResponseDto response = documentProcessingService.processDocument(file, userEmail);
         return ResponseEntity.ok(response);
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/dashboard")
+    public ResponseEntity<DashboardResponseDto> getDashboard(@RequestParam("email") String email) {
+        com.FT.FinanceTracker.entity.User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(dashboardAggregationService.buildDashboard(user));
     }
 }
