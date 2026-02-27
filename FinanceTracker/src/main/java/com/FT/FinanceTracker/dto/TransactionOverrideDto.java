@@ -4,6 +4,7 @@ public class TransactionOverrideDto {
 
     private String category;
     private String merchant;
+    private java.math.BigDecimal amount;
 
     public TransactionOverrideDto() {
     }
@@ -22,5 +23,13 @@ public class TransactionOverrideDto {
 
     public void setMerchant(String merchant) {
         this.merchant = merchant;
+    }
+
+    public java.math.BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(java.math.BigDecimal amount) {
+        this.amount = amount;
     }
 }

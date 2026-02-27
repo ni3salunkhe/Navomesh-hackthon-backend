@@ -14,6 +14,7 @@ public class DashboardResponseDto {
     private List<TransactionDto> recentTransactions;
     private List<RecurringDto> recurringPayments;
     private List<AlertDto> alerts;
+    private long reviewCount;
 
     public DashboardResponseDto() {
     }
@@ -80,5 +81,13 @@ public class DashboardResponseDto {
 
     public void setAlerts(List<AlertDto> alerts) {
         this.alerts = alerts;
+    }
+
+    public long getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(long reviewCount) {
+        this.reviewCount = reviewCount;
     }
 }

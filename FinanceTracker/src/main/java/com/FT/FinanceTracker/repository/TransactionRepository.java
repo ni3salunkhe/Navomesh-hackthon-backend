@@ -62,4 +62,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             @Param("startDate") LocalDate startDate);
 
     long countByUser(User user);
+
+    List<Transaction> findByUserAndConfidenceScoreLessThanAndUserOverrideCategoryIsNullOrderByTransactionDateDesc(User user, Double confidenceThreshold);
 }

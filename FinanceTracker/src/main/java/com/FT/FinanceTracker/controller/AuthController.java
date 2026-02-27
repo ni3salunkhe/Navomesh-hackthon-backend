@@ -19,23 +19,36 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final com.FT.FinanceTracker.service.SystemLogService logService;
 
     public AuthController(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
-                          JwtUtil jwtUtil) {
+                          JwtUtil jwtUtil,
+                          com.FT.FinanceTracker.service.SystemLogService logService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.logService = logService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseGet(() -> {
+                    logService.warn("Login failed: User not found for email " + dto.getEmail(), "AUTH_CONTROLLER");
+                    return null;
+                });
+
+        if (user == null) {
+             return ResponseEntity.badRequest().body("Invalid credentials");
+        }
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            logService.warn("Login failed: Invalid password for user " + dto.getEmail(), "AUTH_CONTROLLER");
             return ResponseEntity.badRequest().body("Invalid credentials");
         }
+
+        logService.info("User logged in: " + user.getEmail() + " (" + user.getRole() + ")", "AUTH_CONTROLLER");
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
         

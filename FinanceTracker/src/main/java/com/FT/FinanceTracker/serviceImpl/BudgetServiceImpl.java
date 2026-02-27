@@ -21,13 +21,16 @@ public class BudgetServiceImpl implements BudgetService {
     private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
+    private final com.FT.FinanceTracker.service.SystemLogService logService;
 
     public BudgetServiceImpl(BudgetRepository budgetRepository,
                              UserRepository userRepository,
-                             TransactionRepository transactionRepository) {
+                             TransactionRepository transactionRepository,
+                             com.FT.FinanceTracker.service.SystemLogService logService) {
         this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
         this.transactionRepository = transactionRepository;
+        this.logService = logService;
     }
 
     @Override
@@ -44,6 +47,8 @@ public class BudgetServiceImpl implements BudgetService {
         budget.setStartDate(budget.getPeriodStart());
 
         budgetRepository.save(budget);
+
+        logService.info("Budget created for user " + email + ": " + dto.getCategory() + " (" + dto.getLimitAmount() + ")", "BUDGET_SERVICE");
 
         return "Budget created successfully";
     }
@@ -86,5 +91,7 @@ public class BudgetServiceImpl implements BudgetService {
         }
 
         budgetRepository.delete(budget);
+        
+        logService.info("Budget " + budgetId + " deleted for user " + email, "BUDGET_SERVICE");
     }
 }

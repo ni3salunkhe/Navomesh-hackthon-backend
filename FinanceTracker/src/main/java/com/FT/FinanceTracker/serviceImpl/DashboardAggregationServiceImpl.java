@@ -98,6 +98,10 @@ public class DashboardAggregationServiceImpl implements DashboardAggregationServ
                 .collect(Collectors.toList());
         dashboard.setAlerts(alertDtos);
 
+        // Review Count (confidence < 0.8 and not yet overridden)
+        List<Transaction> reviewItems = transactionRepository.findByUserAndConfidenceScoreLessThanAndUserOverrideCategoryIsNullOrderByTransactionDateDesc(user, 0.8);
+        dashboard.setReviewCount(reviewItems.size());
+
         return dashboard;
     }
 }

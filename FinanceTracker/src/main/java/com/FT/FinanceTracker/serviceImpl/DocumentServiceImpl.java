@@ -29,6 +29,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class DocumentServiceImpl implements DocumentProcessingService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DocumentServiceImpl.class);
     private final UserRepository userRepository;
     private final ParsingService parsingService;
     private final TransactionExtractionService transactionExtractionService;
@@ -40,6 +41,7 @@ public class DocumentServiceImpl implements DocumentProcessingService {
     private final RecurringDetectionService recurringDetectionService;
     private final BudgetEvaluationService budgetEvaluationService;
     private final DashboardAggregationService dashboardAggregationService;
+    private final com.FT.FinanceTracker.service.SystemLogService logService;
 
     public DocumentServiceImpl(UserRepository userRepository,
                                 ParsingService parsingService,
@@ -51,7 +53,8 @@ public class DocumentServiceImpl implements DocumentProcessingService {
                                 TransactionRepository transactionRepository,
                                 RecurringDetectionService recurringDetectionService,
                                 BudgetEvaluationService budgetEvaluationService,
-                                DashboardAggregationService dashboardAggregationService) {
+                                DashboardAggregationService dashboardAggregationService,
+                                com.FT.FinanceTracker.service.SystemLogService logService) {
         this.userRepository = userRepository;
         this.parsingService = parsingService;
         this.transactionExtractionService = transactionExtractionService;
@@ -63,6 +66,7 @@ public class DocumentServiceImpl implements DocumentProcessingService {
         this.recurringDetectionService = recurringDetectionService;
         this.budgetEvaluationService = budgetEvaluationService;
         this.dashboardAggregationService = dashboardAggregationService;
+        this.logService = logService;
     }
 
     @Override
@@ -76,6 +80,8 @@ public class DocumentServiceImpl implements DocumentProcessingService {
 
         List<TransactionDto> extractedTransactions =
                 transactionExtractionService.extractTransactions(extractedText);
+        
+        logger.info("Extracted {} transactions from document for user {}", extractedTransactions.size(), userEmail);
 
         List<Transaction> enrichedTransactions = new ArrayList<>();
 
@@ -100,6 +106,8 @@ public class DocumentServiceImpl implements DocumentProcessingService {
         recurringDetectionService.detectRecurring(user);
 
         budgetEvaluationService.evaluate(user);
+
+        logService.info("Processed statement " + file.getOriginalFilename() + " for user " + userEmail + ". Extracted " + extractedTransactions.size() + " transactions.", "DOCUMENT_SERVICE");
 
         return dashboardAggregationService.buildDashboard(user);
     }
