@@ -1,5 +1,6 @@
 package com.FT.FinanceTracker.serviceImpl;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import com.FT.FinanceTracker.dto.RecurringDto;
 import com.FT.FinanceTracker.dto.TransactionDto;
 import com.FT.FinanceTracker.entity.RecurringPayment;
 import com.FT.FinanceTracker.entity.Transaction;
+import com.FT.FinanceTracker.entity.Transaction.TransactionType;
 import com.FT.FinanceTracker.entity.User;
 import com.FT.FinanceTracker.repository.RecurringPaymentRepository;
 import com.FT.FinanceTracker.repository.TransactionRepository;
@@ -37,22 +39,36 @@ public class DashboardAggregationServiceImpl implements DashboardAggregationServ
     public DashboardResponseDto buildDashboard(User user) {
         DashboardResponseDto dashboard = new DashboardResponseDto();
 
-        double totalIncome = transactionRepository.sumTotalIncomeByUser(user);
-        double totalExpense = transactionRepository.sumTotalSpentByUser(user);
+        List<Transaction> allTransactions = transactionRepository.findByUser(user);
+        
+        BigDecimal totalIncome = BigDecimal.ZERO;
+        BigDecimal totalExpense = BigDecimal.ZERO;
+        Map<String, BigDecimal> categoryBreakdownMap = new HashMap<>();
 
-        dashboard.setTotalIncome(totalIncome);
-        dashboard.setTotalExpense(totalExpense);
-        dashboard.setNetBalance(totalIncome - totalExpense);
+        for (Transaction t : allTransactions) {
+            BigDecimal amount = t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO;
+            
+            if (t.getType() == TransactionType.CREDIT) {
+                totalIncome = totalIncome.add(amount);
+            } else {
+                totalExpense = totalExpense.add(amount);
+                String cat = t.getSystemCategory() != null ? t.getSystemCategory() : "Uncategorized";
+                categoryBreakdownMap.merge(cat, amount, BigDecimal::add);
+            }
+        }
+
+        dashboard.setTotalIncome(totalIncome.doubleValue());
+        dashboard.setTotalExpense(totalExpense.doubleValue());
+        dashboard.setNetBalance(totalIncome.subtract(totalExpense).doubleValue());
         dashboard.setTransactionCount(transactionRepository.countByUser(user));
 
-        // Category breakdown
-        List<Transaction> transactions = transactionRepository.findByUser(user);
-        Map<String, Double> categoryBreakdown = new HashMap<>();
-        for (Transaction t : transactions) {
-            String cat = t.getSystemCategory() != null ? t.getSystemCategory() : "Uncategorized";
-            categoryBreakdown.merge(cat, t.getAmount(), Double::sum);
-        }
-        dashboard.setCategoryBreakdown(categoryBreakdown);
+        // Category breakdown conversion
+        Map<String, Double> finalBreakdown = categoryBreakdownMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> e.getValue().doubleValue()
+                ));
+        dashboard.setCategoryBreakdown(finalBreakdown);
 
         // Recent transactions (last 10)
         List<Transaction> recent = transactionRepository.findByUserOrderByTransactionDateDesc(user);

@@ -1,6 +1,7 @@
 package com.FT.FinanceTracker.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -17,7 +18,8 @@ public class Budget extends BaseEntity {
 
     private String category;
 
-    private Double limitAmount;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal limitAmount;
 
     @Enumerated(EnumType.STRING)
     private BudgetPeriod period;
@@ -33,7 +35,7 @@ public class Budget extends BaseEntity {
     public Budget() {
     }
 
-    public Budget(UUID id, User user, String category, Double limitAmount, BudgetPeriod period, LocalDate startDate) {
+    public Budget(UUID id, User user, String category, BigDecimal limitAmount, BudgetPeriod period, LocalDate startDate) {
         this.id = id;
         this.user = user;
         this.category = category;
@@ -66,11 +68,11 @@ public class Budget extends BaseEntity {
         this.category = category;
     }
 
-    public Double getLimitAmount() {
+    public BigDecimal getLimitAmount() {
         return limitAmount;
     }
 
-    public void setLimitAmount(Double limitAmount) {
+    public void setLimitAmount(BigDecimal limitAmount) {
         this.limitAmount = limitAmount;
     }
 

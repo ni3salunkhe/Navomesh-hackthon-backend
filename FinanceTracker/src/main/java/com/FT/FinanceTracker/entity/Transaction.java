@@ -1,11 +1,22 @@
 package com.FT.FinanceTracker.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "transactions")
+@Table(
+    name = "transactions",
+    uniqueConstraints = @UniqueConstraint(
+        columnNames = {
+            "user_id",
+            "transactionDate",
+            "amount",
+            "normalizedMerchant"
+        }
+    )
+)
 public class Transaction extends BaseEntity {
 
     @Id
@@ -21,12 +32,14 @@ public class Transaction extends BaseEntity {
     @Column(length = 1000)
     private String rawDescription;
 
-    private Double amount;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     private TransactionType type;
 
-    private Double balance;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal balance;
 
     // System-generated intelligence
     private String normalizedMerchant;
@@ -52,8 +65,8 @@ public class Transaction extends BaseEntity {
     public Transaction() {
     }
 
-    public Transaction(UUID id, User user, LocalDate transactionDate, String rawDescription, Double amount,
-                       TransactionType type, Double balance, String normalizedMerchant, String systemCategory,
+    public Transaction(UUID id, User user, LocalDate transactionDate, String rawDescription, BigDecimal amount,
+                       TransactionType type, BigDecimal balance, String normalizedMerchant, String systemCategory,
                        Double confidenceScore, String modelVersion, String userOverrideCategory,
                        String userOverrideMerchant, Boolean recurringFlag) {
         this.id = id;
@@ -104,11 +117,11 @@ public class Transaction extends BaseEntity {
         this.rawDescription = rawDescription;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -120,11 +133,11 @@ public class Transaction extends BaseEntity {
         this.type = type;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 

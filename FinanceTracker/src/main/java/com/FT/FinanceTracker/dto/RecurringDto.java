@@ -1,16 +1,18 @@
 package com.FT.FinanceTracker.dto;
 
+import java.math.BigDecimal;
+
 public class RecurringDto {
 
     private String merchant;
-    private double averageAmount;
+    private BigDecimal averageAmount;
     private int intervalDays;
     private double confidence;
 
     public RecurringDto() {
     }
 
-    public RecurringDto(String merchant, double averageAmount, int intervalDays, double confidence) {
+    public RecurringDto(String merchant, BigDecimal averageAmount, int intervalDays, double confidence) {
         this.merchant = merchant;
         this.averageAmount = averageAmount;
         this.intervalDays = intervalDays;
@@ -25,11 +27,11 @@ public class RecurringDto {
         this.merchant = merchant;
     }
 
-    public double getAverageAmount() {
+    public BigDecimal getAverageAmount() {
         return averageAmount;
     }
 
-    public void setAverageAmount(double averageAmount) {
+    public void setAverageAmount(BigDecimal averageAmount) {
         this.averageAmount = averageAmount;
     }
 

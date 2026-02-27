@@ -1,5 +1,7 @@
 package com.FT.FinanceTracker.serviceImpl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -54,6 +56,7 @@ public class RecurringDetectionServiceImpl implements RecurringDetectionService 
             }
         }
     }
+
     private boolean isMonthlyRecurring(List<Transaction> list) {
 
         for (int i = 1; i < list.size(); i++) {
@@ -75,11 +78,11 @@ public class RecurringDetectionServiceImpl implements RecurringDetectionService 
 
         return true;
     }
-    private boolean isAmountSimilar(Double a, Double b) {
 
-        double tolerance = a * 0.05;
-
-        return Math.abs(a - b) <= tolerance;
+    private boolean isAmountSimilar(BigDecimal a, BigDecimal b) {
+        if (a == null || b == null) return false;
+        BigDecimal tolerance = a.multiply(new BigDecimal("0.05"));
+        return a.subtract(b).abs().compareTo(tolerance) <= 0;
     }
 
     private void saveRecurring(User user, String merchant, List<Transaction> list) {
@@ -87,10 +90,16 @@ public class RecurringDetectionServiceImpl implements RecurringDetectionService 
             return;
         }
 
-        double sumAmount = list.stream()
-                .mapToDouble(t -> t.getAmount() == null ? 0.0 : t.getAmount())
-                .sum();
-        double avgAmount = sumAmount / list.size();
+        BigDecimal sumAmount = BigDecimal.ZERO;
+        for (Transaction t : list) {
+            sumAmount = sumAmount.add(t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO);
+        }
+        
+        BigDecimal avgAmount = sumAmount.divide(
+                BigDecimal.valueOf(list.size()),
+                2,
+                RoundingMode.HALF_UP
+        );
 
         long totalDays = ChronoUnit.DAYS.between(
                 list.get(0).getTransactionDate(),

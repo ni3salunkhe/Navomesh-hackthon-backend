@@ -1,5 +1,6 @@
 package com.FT.FinanceTracker.serviceImpl;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class TransationExtractionServiceImpl implements TransactionExtractionSer
         return list;
     }
 
-    private Double parseAmount(String amountStr) {
-        return Double.parseDouble(amountStr.replace(",", ""));
+    private BigDecimal parseAmount(String amountStr) {
+        return new BigDecimal(amountStr.replace(",", ""));
     }
 }

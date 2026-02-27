@@ -1,6 +1,7 @@
 package com.FT.FinanceTracker.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -16,9 +17,11 @@ public class Alert extends BaseEntity {
 
     private String category;
 
-    private Double currentSpent;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal currentSpent;
 
-    private Double limitAmount;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal limitAmount;
 
     private String message;
 
@@ -33,7 +36,7 @@ public class Alert extends BaseEntity {
     public Alert() {
     }
 
-    public Alert(UUID id, User user, String category, Double currentSpent, Double limitAmount, String message, AlertStatus status) {
+    public Alert(UUID id, User user, String category, BigDecimal currentSpent, BigDecimal limitAmount, String message, AlertStatus status) {
         this.id = id;
         this.user = user;
         this.category = category;
@@ -67,19 +70,19 @@ public class Alert extends BaseEntity {
         this.category = category;
     }
 
-    public Double getCurrentSpent() {
+    public BigDecimal getCurrentSpent() {
         return currentSpent;
     }
 
-    public void setCurrentSpent(Double currentSpent) {
+    public void setCurrentSpent(BigDecimal currentSpent) {
         this.currentSpent = currentSpent;
     }
 
-    public Double getLimitAmount() {
+    public BigDecimal getLimitAmount() {
         return limitAmount;
     }
 
-    public void setLimitAmount(Double limitAmount) {
+    public void setLimitAmount(BigDecimal limitAmount) {
         this.limitAmount = limitAmount;
     }
 

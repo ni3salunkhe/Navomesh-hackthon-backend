@@ -1,10 +1,16 @@
 package com.FT.FinanceTracker.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "recurring_payments")
+@Table(
+    name = "recurring_payments",
+    uniqueConstraints = @UniqueConstraint(
+        columnNames = {"user_id", "merchant"}
+    )
+)
 public class RecurringPayment extends BaseEntity {
 
     @Id
@@ -16,7 +22,8 @@ public class RecurringPayment extends BaseEntity {
 
     private String merchant;
 
-    private Double averageAmount;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal averageAmount;
 
     private Integer intervalDays;
 
@@ -25,7 +32,7 @@ public class RecurringPayment extends BaseEntity {
     public RecurringPayment() {
     }
 
-    public RecurringPayment(UUID id, User user, String merchant, Double averageAmount, Integer intervalDays, Double confidenceScore) {
+    public RecurringPayment(UUID id, User user, String merchant, BigDecimal averageAmount, Integer intervalDays, Double confidenceScore) {
         this.id = id;
         this.user = user;
         this.merchant = merchant;
@@ -58,11 +65,11 @@ public class RecurringPayment extends BaseEntity {
         this.merchant = merchant;
     }
 
-    public Double getAverageAmount() {
+    public BigDecimal getAverageAmount() {
         return averageAmount;
     }
 
-    public void setAverageAmount(Double averageAmount) {
+    public void setAverageAmount(BigDecimal averageAmount) {
         this.averageAmount = averageAmount;
     }
 

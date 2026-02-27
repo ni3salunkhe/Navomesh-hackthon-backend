@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -21,11 +22,18 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT")
     List<Transaction> findDebitByUser(@Param("userId") UUID userId);
 
+    boolean existsByUserAndTransactionDateAndAmountAndNormalizedMerchant(
+            User user,
+            java.time.LocalDate transactionDate,
+            java.math.BigDecimal amount,
+            String normalizedMerchant
+    );
+
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.systemCategory = :category " +
            "AND t.transactionDate BETWEEN :startDate AND :endDate " +
            "AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT")
-    double sumByUserAndCategoryAndPeriod(
+    BigDecimal sumByUserAndCategoryAndPeriod(
             @Param("user") User user,
             @Param("category") String category,
             @Param("startDate") LocalDate startDate,
@@ -41,11 +49,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.DEBIT")
-    double sumTotalSpentByUser(@Param("user") User user);
+    BigDecimal sumTotalSpentByUser(@Param("user") User user);
 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
            "WHERE t.user = :user AND t.type = com.FT.FinanceTracker.entity.Transaction.TransactionType.CREDIT")
-    double sumTotalIncomeByUser(@Param("user") User user);
+    BigDecimal sumTotalIncomeByUser(@Param("user") User user);
 
     long countByUser(User user);
 }

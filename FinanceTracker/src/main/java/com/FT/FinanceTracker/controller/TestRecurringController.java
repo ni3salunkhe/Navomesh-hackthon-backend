@@ -1,5 +1,6 @@
 package com.FT.FinanceTracker.controller;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -45,18 +46,18 @@ public class TestRecurringController {
         }
 
         // Add 3 monthly transactions for Netflix -> should detect
-        createTxn(user, "Netflix", 15.99, LocalDate.of(2026, 1, 15));
-        createTxn(user, "Netflix", 15.99, LocalDate.of(2026, 2, 15));
-        createTxn(user, "Netflix", 15.99, LocalDate.of(2026, 3, 15));
+        createTxn(user, "Netflix", new BigDecimal("15.99"), LocalDate.of(2026, 1, 15));
+        createTxn(user, "Netflix", new BigDecimal("15.99"), LocalDate.of(2026, 2, 15));
+        createTxn(user, "Netflix", new BigDecimal("15.99"), LocalDate.of(2026, 3, 15));
 
         // Add 2 manual rent payments -> should not detect (needs 3)
-        createTxn(user, "Rent", 1000.0, LocalDate.of(2026, 2, 1));
-        createTxn(user, "Rent", 1000.0, LocalDate.of(2026, 3, 1));
+        createTxn(user, "Rent", new BigDecimal("1000.00"), LocalDate.of(2026, 2, 1));
+        createTxn(user, "Rent", new BigDecimal("1000.00"), LocalDate.of(2026, 3, 1));
 
         // Add random grocery dates -> should not detect (uneven gaps, different amounts)
-        createTxn(user, "Walmart", 50.0, LocalDate.of(2026, 2, 5));
-        createTxn(user, "Walmart", 100.0, LocalDate.of(2026, 2, 18));
-        createTxn(user, "Walmart", 200.0, LocalDate.of(2026, 3, 10));
+        createTxn(user, "Walmart", new BigDecimal("50.00"), LocalDate.of(2026, 2, 5));
+        createTxn(user, "Walmart", new BigDecimal("100.00"), LocalDate.of(2026, 2, 18));
+        createTxn(user, "Walmart", new BigDecimal("200.00"), LocalDate.of(2026, 3, 10));
 
         // Run detection
         recurringDetectionService.detectRecurring(user);
@@ -66,15 +67,20 @@ public class TestRecurringController {
         return ResponseEntity.ok(dashboard);
     }
 
-    private void createTxn(User user, String merchant, double amount, LocalDate date) {
-        Transaction t = new Transaction();
-        t.setUser(user);
-        t.setNormalizedMerchant(merchant);
-        t.setAmount(amount);
-        t.setTransactionDate(date);
-        t.setType(TransactionType.DEBIT);
-        t.setSystemCategory("Test");
-        t.setRecurringFlag(false);
-        transactionRepository.save(t);
+    private void createTxn(User user, String merchant, BigDecimal amount, LocalDate date) {
+        // Service-level deduplication
+        if (!transactionRepository.existsByUserAndTransactionDateAndAmountAndNormalizedMerchant(
+                user, date, amount, merchant)) {
+            
+            Transaction t = new Transaction();
+            t.setUser(user);
+            t.setNormalizedMerchant(merchant);
+            t.setAmount(amount);
+            t.setTransactionDate(date);
+            t.setType(TransactionType.DEBIT);
+            t.setSystemCategory("Test");
+            t.setRecurringFlag(false);
+            transactionRepository.save(t);
+        }
     }
 }

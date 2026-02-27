@@ -1,21 +1,28 @@
 package com.FT.FinanceTracker.dto;
 
 import com.FT.FinanceTracker.entity.Transaction.TransactionType;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class TransactionDto {
 
     private LocalDate date;
     private String rawDescription;
-    private Double amount;
+    private BigDecimal amount;
     private TransactionType type;
-    private Double balance;
+    private BigDecimal balance;
+    
+    // Enriched fields
+    private String merchant;
+    private String category;
+    private Double confidence;
+    private Boolean needsReview;
     private Boolean recurringFlag;
 
     public TransactionDto() {
     }
 
-    public TransactionDto(LocalDate date, String rawDescription, Double amount, TransactionType type, Double balance) {
+    public TransactionDto(LocalDate date, String rawDescription, BigDecimal amount, TransactionType type, BigDecimal balance) {
         this.date = date;
         this.rawDescription = rawDescription;
         this.amount = amount;
@@ -39,11 +46,11 @@ public class TransactionDto {
         this.rawDescription = rawDescription;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -55,12 +62,44 @@ public class TransactionDto {
         this.type = type;
     }
 
-    public Double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public String getMerchant() {
+        return merchant;
+    }
+
+    public void setMerchant(String merchant) {
+        this.merchant = merchant;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Double getConfidence() {
+        return confidence;
+    }
+
+    public void setConfidence(Double confidence) {
+        this.confidence = confidence;
+    }
+
+    public Boolean getNeedsReview() {
+        return needsReview;
+    }
+
+    public void setNeedsReview(Boolean needsReview) {
+        this.needsReview = needsReview;
     }
 
     public Boolean getRecurringFlag() {

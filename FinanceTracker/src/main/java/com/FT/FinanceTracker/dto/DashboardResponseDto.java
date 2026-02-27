@@ -16,6 +16,15 @@ public class DashboardResponseDto {
     public DashboardResponseDto() {
     }
 
+    public DashboardResponseDto(double totalIncome, double totalExpense, double netBalance, long transactionCount, Map<String, Double> categoryBreakdown, List<TransactionDto> recentTransactions) {
+        this.totalIncome = totalIncome;
+        this.totalExpense = totalExpense;
+        this.netBalance = netBalance;
+        this.transactionCount = transactionCount;
+        this.categoryBreakdown = categoryBreakdown;
+        this.recentTransactions = recentTransactions;
+    }
+
     public double getTotalIncome() {
         return totalIncome;
     }

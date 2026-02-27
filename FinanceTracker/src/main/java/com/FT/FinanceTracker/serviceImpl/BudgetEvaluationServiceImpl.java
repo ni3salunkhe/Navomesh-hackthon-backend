@@ -1,5 +1,6 @@
 package com.FT.FinanceTracker.serviceImpl;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -32,21 +33,25 @@ public class BudgetEvaluationServiceImpl implements BudgetEvaluationService {
         List<Budget> budgets = budgetRepository.findByUser(user);
 
         for (Budget budget : budgets) {
-            double spent = transactionRepository.sumByUserAndCategoryAndPeriod(
+            BigDecimal spent = transactionRepository.sumByUserAndCategoryAndPeriod(
                 user,
                 budget.getCategory(),
                 budget.getPeriodStart(),
                 budget.getPeriodEnd()
             );
 
-            if (spent >= budget.getLimitAmount()) {
+            if (spent == null) {
+                spent = BigDecimal.ZERO;
+            }
+
+            if (spent.compareTo(budget.getLimitAmount()) >= 0) {
                 Alert alert = new Alert();
                 alert.setUser(user);
                 alert.setCategory(budget.getCategory());
                 alert.setCurrentSpent(spent);
                 alert.setLimitAmount(budget.getLimitAmount());
-                alert.setMessage(String.format("Budget exceeded for %s: spent %.2f of %.2f limit",
-                        budget.getCategory(), spent, budget.getLimitAmount()));
+                alert.setMessage(String.format("Budget exceeded for %s: spent %s of %s limit",
+                        budget.getCategory(), spent.toString(), budget.getLimitAmount().toString()));
                 alert.setStatus(Alert.AlertStatus.ACTIVE);
                 alertRepository.save(alert);
             }
